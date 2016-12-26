@@ -1,0 +1,16 @@
+
+description = ''
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+dependencies {
+	compile project(':safety-bean')
+	compile project(':safety-dao')
+    //compile group: 'org.springframework', name: 'spring-context', version:'4.0.5.RELEASE'
+    //compile group: 'org.springframework', name: 'spring-orm', version:'4.0.5.RELEASE'
+    compile group: 'org.hibernate', name: 'hibernate-core', version:'4.3.6.Final'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.1'
+	//compile group: 'org.apache.lucene', name: 'lucene-core', version:'4.7.2'
+	//compile group: 'org.apache.lucene', name: 'lucene-queryparser', version:'4.7.2'
+	//compile group: 'org.apache.lucene', name: 'lucene-highlighter', version:'4.7.2'
+	//compile group: 'com.janeluo', name: 'ikanalyzer', version: '2012_u6'
+}

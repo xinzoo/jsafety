@@ -1,0 +1,26 @@
+//bean
+include(':safety-bean')
+project(':safety-bean').projectDir = new File(settingsDir, 'bean')
+
+//dao
+include(':safety-dao')
+project(':safety-dao').projectDir = new File(settingsDir, 'dao')
+
+//security
+include(':safety-security-web')
+project(':safety-security-web').projectDir = new File(settingsDir, 'security/security-web')
+include(':safety-security-service')
+project(':safety-security-service').projectDir = new File(settingsDir, 'security/security-service')
+
+//shiro
+include(':safety-shiro-web')
+project(':safety-shiro-web').projectDir = new File(settingsDir, 'shiro/shiro-web')
+include(':safety-shiro-service')
+project(':safety-shiro-service').projectDir = new File(settingsDir, 'shiro/shiro-service')
+
+
+
+
+
+
+

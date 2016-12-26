@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans" 
+	xmlns:ctx="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.1.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd">
+
+
+
+
+	<http pattern="/login.jsp" security="none" />
+	<http pattern="/logout.jsp" security="none" />
+	<http pattern="/favicon.ico" security="none" />
+	<http pattern="/LoginCodeCreate/createCode.do" security="none" />
+	<http pattern="/access-denied.jsp" security="none" />
+	
+	<http pattern="/css/**" security="none" />
+	<http pattern="/images/**" security="none" />
+	<http pattern="/js/**" security="none" />
+	<http pattern="/head_foot_common/**" security="none" />
+	<http pattern="/page/util/head_foot_common/**" security="none" />
+	<http pattern="/My97DatePicker/**" security="none" />
+	
+
+	
+	<http authentication-manager-ref="authenticationManager" use-expressions="false">
+		
+		<intercept-url pattern="/index.jsp" access="ROLE_ANONYMOUS,ROLE_USER" />
+		<intercept-url pattern="/empty.jsp" access="" />
+		<intercept-url pattern="/anonymous.jsp" access="ROLE_ANONYMOUS" />
+		<intercept-url pattern="/user.jsp" access="ROLE_USER" />
+		<intercept-url pattern="/admin.jsp" access="ROLE_ADMIN" />
+		<intercept-url pattern="/**" access="ROLE_ANONYMOUS,ROLE_USER" />
+		
+
+		<form-login login-page="/login.jsp" 
+			login-processing-url="/j_spring_security_check"
+			default-target-url="/index.jsp" 
+			always-use-default-target="false" 
+			authentication-failure-url="/login.jsp?error=true" />
+		<logout logout-url="/j_spring_security_logout" 
+			logout-success-url="/logout.jsp" />
+		<session-management>
+			<concurrency-control max-sessions="1" />
+		</session-management>
+		<csrf disabled="true"/>
+		<anonymous />
+		<access-denied-handler error-page="/access-denied.jsp" />
+		
+		<!-- iframe 嵌入设置 -->
+		<headers>
+			<frame-options disabled="true" />
+		</headers>
+		
+		<!-- 
+		<custom-filter ref="ipFilter"  before="FIRST"/>
+		 -->
+		
+	</http>
+	
+	<beans:bean id="ipFilter" class="com.eshore.prip.portal.web.security.IpAddressFilter"
+		p:skipUrl="/Main/WangBanView.do;/BigDataAnalyse/dataAnalyseMapData.do" 
+		p:allowIP="210.76.65.9;59.42.83.86;113.108.186.130;127.0.0.1;0:0:0:0:0:0:0:1">
+	</beans:bean>
+	
+
+	<!-- 
+	<beans:bean id="customInterceptor"
+		class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+		<beans:property name="authenticationManager" ref="authenticationManager" />
+		<beans:property name="accessDecisionManager" ref="accessDecisionManager" />
+		<beans:property name="securityMetadataSource" ref="securityMetadataSource" />
+	</beans:bean>
+	
+
+	
+	 -->
+	
+	<!-- 
+	<beans:bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased" >
+		<beans:constructor-arg>
+			<beans:list>
+				<beans:bean class="com.eshore.osh.web.security.RoleVoter" />
+			</beans:list>
+		</beans:constructor-arg>
+	</beans:bean>
+
+-->
+
+	<authentication-manager id="authenticationManager">
+		<authentication-provider>
+			<user-service>
+				<user name="root" password="eshore2015" authorities="ROLE_USER, ROLE_ADMIN" />
+				<user name="test" password="test" authorities="ROLE_USER" />
+				<user name="empty" password="empty" authorities="" /><!-- 这样配置是错误的，没有任何role的角色不能访问受保护资源 -->
+			</user-service>
+		</authentication-provider>
+	</authentication-manager>
+	<!-- 
+	<beans:bean id="authenticationManager" 
+		class="org.springframework.security.authentication.ProviderManager" >
+		<beans:constructor-arg>
+			<beans:list>
+				<beans:bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider" 
+						p:userDetailsService-ref="jdbcUserService"
+						p:passwordEncoder-ref="userPasswordEncoder">
+				</beans:bean>
+			</beans:list>
+		</beans:constructor-arg>  
+	</beans:bean>
+	 -->
+	
+
+	
+	<!-- 加密 --> 	
+	<beans:bean name="userPasswordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder" />
+	
+	
+	<beans:bean id="authenticationManagerFactoryBean" class="org.springframework.security.config.authentication.AuthenticationManagerFactoryBean" />
+	<!-- 
+	<beans:bean id="methodInvokingFactoryBean" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+		p:targetObject-ref="authenticationManager"
+		p:targetMethod="isEraseCredentialsAfterAuthentication" />
+	-->
+	
+
+	<beans:bean id="jdbcUserService"
+		class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl"
+		
+		p:dataSource-ref="dataSource" >
+		<beans:property name="usersByUsernameQuery">
+			<beans:value>select id,password,enabled  from t_user where is_del=0 and id=?
+			</beans:value>
+		</beans:property>
+		<beans:property name="authoritiesByUsernameQuery">
+			<beans:value>select user_id, role_id from t_user_role where user_id=?
+			</beans:value>
+		</beans:property>
+	</beans:bean>
+
+
+
+
+
+	
+	<beans:bean id="securityContextHolderAwareRequestFilter" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter" >
+	</beans:bean>
+	
+	<!-- 
+	<beans:bean id="securityContextPersistenceFilter" class="org.springframework.security.web.context.SecurityContextPersistenceFilter" >
+		<beans:property name="securityContextRepository">
+			<beans:bean class="org.springframework.security.web.context.HttpSessionSecurityContextRepository">
+			</beans:bean>
+		</beans:property>
+	</beans:bean>
+	
+	 -->
+
+	<!--  
+	
+	<beans:bean id="usernamePasswordAuthenticationFilter" class="com.eshore.tboss.web.security.UsernamePasswordAuthenticationFilter"
+		p:authenticationManager-ref="authenticationManager" 
+		p:filterProcessesUrl="/j_spring_security_check" 
+		p:authenticationSuccessHandler-ref="authenticationSuccessHandler"
+		p:authenticationFailureHandler-ref="authenticationFailureHandler" />
+		
+		
+		<beans:bean id="httpSessionRequestCache" class="org.springframework.security.web.savedrequest.HttpSessionRequestCache" />
+		-->
+
+
+
+	
+
+
+
+	
+	<beans:bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<beans:property name="basenames">
+			<beans:list>
+				<!-- <beans:value>classpath:spring_security_messages_zh_CN</beans:value>  -->
+				<beans:value>classpath:messages</beans:value><!-- 国际化需要的文档 -->
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+	
+
+</beans:beans>

@@ -1,0 +1,40 @@
+
+
+allprojects {
+    apply plugin: 'eclipse'
+}
+
+
+subprojects{
+	apply plugin: 'java'
+
+	sourceCompatibility = 1.7
+	targetCompatibility = 1.7
+	
+	configurations {
+    	all*.exclude group: 'commons-logging', module: 'commons-logging'
+    	all*.exclude group: 'org.hibernate.javax.persistence', module: 'hibernate-jpa-2.0-api'
+	}
+
+	
+    tasks.withType(JavaCompile) {  
+        options.encoding = "UTF-8"  
+    }  
+	
+	repositories{
+		maven{ url 'http://113.108.186.130:11029/nexus/content/groups/public/'}
+		mavenLocal()
+		mavenCentral()
+		
+	}
+	
+	dependencies{
+		compile group:'org.slf4j', name:'slf4j-api', version:'1.7.5'
+		compile group:'org.slf4j', name:'slf4j-log4j12', version:'1.7.5'
+		compile group:'org.slf4j', name:'jcl-over-slf4j', version:'1.7.5'
+	}
+}
+
+
+
+

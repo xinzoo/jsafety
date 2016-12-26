@@ -1,0 +1,80 @@
+apply plugin: 'war'
+webAppDirName = 'src/main/webapp'
+description = ''
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+dependencies {
+	compile project(':safety-bean')
+	compile project(':safety-security-service')
+	compile 'org.springframework:spring-context:4.3.0.RELEASE'
+    compile 'org.springframework:spring-orm:4.3.0.RELEASE'
+    compile 'org.springframework:spring-jms:4.3.0.RELEASE'
+    compile 'org.springframework:spring-webmvc:4.3.0.RELEASE'
+	compile 'org.springframework:spring-aspects:4.3.0.RELEASE'
+    //compile 'org.springframework.security:spring-security-web:4.1.0.RELEASE'
+    //compile 'org.springframework.security:spring-security-config:4.1.0.RELEASE'
+    //compile 'org.springframework.security:spring-security-taglibs:4.1.0.RELEASE'
+	compile group: 'org.hibernate', name: 'hibernate-core', version:'4.3.6.Final'
+	compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.1'
+    compile group: 'commons-lang', name: 'commons-lang', version:'2.6'
+    compile group: 'net.sf.json-lib', name: 'json-lib', version:'2.0', classifier:'jdk15';
+    compile group: 'net.sourceforge.jexcelapi', name: 'jxl', version:'2.6.12'
+    compile group: 'org.apache.poi', name: 'poi-ooxml', version:'3.9'
+    compile group: 'org.impalaframework', name: 'impala-extension-mvc', version:'0.1'
+    //compile group: 'commons-fileupload', name: 'commons-fileupload', version:'1.3'
+    compile group: 'cglib', name: 'cglib-nodep', version:'2.2'
+    compile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
+    compile group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version:'1.9.13'
+    compile group: 'jstl', name: 'jstl', version:'1.2'
+    compile group: 'taglibs', name: 'standard', version:'1.1.2'
+    compile group: 'com.thoughtworks.xstream', name: 'xstream', version:'1.4.4'
+    compile group: 'net.sf.ehcache', name: 'ehcache-core', version:'2.6.6'
+	compile 'com.fasterxml.jackson.core:jackson-core:2.7.3'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.3'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.7.3'   
+    compile 'com.google.guava:guava:18.0'
+	compile 'org.freemarker:freemarker:2.3.22'
+	compile 'org.jsoup:jsoup:1.8.3'	//通过白名单方式滤除危险html标签，用于过滤地市公告结果公告的内容
+	compile 'com.belerweb:pinyin4j:2.5.0'
+	compile group: 'org.json', name: 'json', version: '20151123'
+	compile group: 'com.google.code.gson', name: 'gson', version:'2.3.1'
+	compile fileTree(dir: 'libs', include: '*.jar')
+	testCompile 'org.springframework:spring-test:4.0.5.RELEASE'
+	testCompile 'junit:junit:4.12'
+    providedCompile group: 'org.apache.geronimo.specs', name: 'geronimo-servlet_3.0_spec', version:'1.0'
+    providedCompile group: 'org.apache.geronimo.specs', name: 'geronimo-jsp_2.1_spec', version:'1.0.1'
+}
+
+
+
+
+task enableGzip(type:Copy) {
+	from ("${webAppDir}"){
+		include "**/*.js"
+		include "**/*.css"
+		exclude "page"
+		exclude "WEB-INF"
+		exclude "images"
+	}
+	into "${buildDir}/tempJSnCSS"
+	doLast{
+		fileTree(dir:"${buildDir}/tempJSnCSS",includes: ["**/*.js", "**/*.css"]).each{ file->
+			if(file.size()>2048){
+				//println file;
+				//println ''+file+'.gz'
+				ant.gzip(src :file, destfile:"${file}.gz")
+			}
+		}
+	}
+
+}
+
+
+war{
+	dependsOn enableGzip;
+	
+    from ("${buildDir}/tempJSnCSS"){
+     	include "**/*.gz"
+    }
+
+}
